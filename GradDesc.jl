@@ -2,11 +2,11 @@ x = rand(1:100, 1000)
 par = rand(2:4, 1000)
 y = x.*par + 10
 
-convergeCrit = .0001
-m = length(x)
+const convergeCrit = .0001
+const m = length(x)
 
 # Version that uses recursion
-function gradDesc(x, y, theta0, theta1, α, i)
+function gradDescRec(x, y, theta0, theta1, α, i)
   
   i+=1
   
@@ -23,7 +23,7 @@ function gradDesc(x, y, theta0, theta1, α, i)
   if (abs((1/m)*sum(predY - y)) > convergeCrit || 
       abs((1/m)*sum((predY - y).*x)) > convergeCrit)
     
-    gradDesc(x, y, theta0, theta1, α, i)
+    gradDescRec(x, y, theta0, theta1, α, i)
   else
     @printf "convergeCrit0 = %f, convergeCrit1 = %f, recursions = %d \n" abs(theta0 - orgtheta0) abs(theta1 - orgtheta1) i 
     
@@ -31,7 +31,7 @@ function gradDesc(x, y, theta0, theta1, α, i)
   end
 end
 
-gradDesc(x, y, 0, 0, .0001, 0)
+@time gradDescRec(x, y, 0, 0, .0001, 0)
 
 ### Version without recursion
 function gradDesc(x, y, α)
@@ -58,7 +58,6 @@ function gradDesc(x, y, α)
   
 end
 
-gradDesc(x, y, .0001)
+@time gradDesc(x, y, .0001)
 
-linreg(x,y)
-
+@time linreg(x,y)
