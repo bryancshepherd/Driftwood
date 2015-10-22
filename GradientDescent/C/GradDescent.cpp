@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "GradDescent.h"
 
 int main()
 {
@@ -29,15 +30,16 @@ int main()
 
 #if(1)
 	// Estimate parameters with gradient decsent 
-	int j = 1;
+	double j = 99;
 	double b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0;
 
-	while (j > 0) {
+	while (abs(j) > 0.001) {
 
 		std::vector<double> yhat;
 		double alpha = .0001;
+		double m = (1.0 / rows);
 
-		double costb0 = 0, costb1 = 0, costb2 = 0, costb3 = 0, costb4 = 0;
+		double derivb0 = 0, derivb1 = 0, derivb2 = 0, derivb3 = 0, derivb4 = 0;
 
 		for (int k = 0; k < rows; k++) {
 		 
@@ -49,25 +51,33 @@ int main()
 
 			yhat.push_back(std::inner_product(betas, betas+5, obs, init));
 
-			costb0 = costb0 + ((yhat[k] - y[k]) * 1.0);
-			costb1 = costb1 + ((yhat[k] - y[k]) * x1[k]);
-			costb2 = costb2 + ((yhat[k] - y[k]) * x2[k]);
-			costb3 = costb3 + ((yhat[k] - y[k]) * x3[k]);
-			costb4 = costb4 + ((yhat[k] - y[k]) * x4[k]);
+			derivb0 = derivb0 + ((yhat[k] - y[k]) * 1.0);
+			derivb1 = derivb1 + ((yhat[k] - y[k]) * x1[k]);
+			derivb2 = derivb2 + ((yhat[k] - y[k]) * x2[k]);
+			derivb3 = derivb3 + ((yhat[k] - y[k]) * x3[k]);
+			derivb4 = derivb4 + ((yhat[k] - y[k]) * x4[k]);
 
 			// printf("%4.2f \n", costb0);
 		}
 
-		double m = (1.0 / rows);
+		double error;
+		double sumerrorsq = 0;
+
+		for (int t = 0; t < rows; t++) {
+			error = yhat[t] - y[t];
+			sumerrorsq = sumerrorsq + pow(error, 2.0);
+		};
+
+
+		j = (1.0 / (2.0 * rows)) * sumerrorsq;
+
 		double adjfac = alpha * m;
 
-		b0 = b0 - (alpha * .05 * costb0);
-		b1 = b1 - (adjfac * costb1);
-		b2 = b2 - (adjfac * costb2);
-		b3 = b3 - (adjfac * costb3);
-		b4 = b4 - (adjfac * costb4);
-
-		if (abs(costb0 * alpha) < .001 & abs(costb1 * adjfac) < .001 & abs(costb2 * adjfac) < .001 & abs(costb3 * adjfac) < .001 & abs(costb4 * adjfac) < .001) j = 0;
+		b0 = b0 - (alpha * .05 * derivb0);
+		b1 = b1 - (adjfac * derivb1);
+		b2 = b2 - (adjfac * derivb2);
+		b3 = b3 - (adjfac * derivb3);
+		b4 = b4 - (adjfac * derivb4);
 
 		printf("%4.2f %4.2f %4.2f %4.2f %4.2f \n", b0, b1, b2, b3, b4);
 
@@ -78,4 +88,3 @@ int main()
 
     return 0;
 }
-
